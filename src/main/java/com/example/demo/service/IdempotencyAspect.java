@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.Idempotent;
+import com.example.demo.dto.response.ApiResponse;
+import com.example.demo.exception.CustomException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -10,7 +12,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Aspect
@@ -35,18 +37,35 @@ public class IdempotencyAspect {
         if (!isFirst) {
             String cached = idempotencyService.getSavedResponse(transactionId);
             if (cached != null) {
-                return ResponseEntity.ok(objectMapper.readValue(cached, Object.class));
+                return objectMapper.readValue(cached, ApiResponse.class);
             }
-            return ResponseEntity.status(409).body("Duplicate request");
+            return ApiResponse.error(HttpStatus.CONFLICT, "Duplicate request");
         }
 
-        Object response = pjp.proceed();
+        String resJson;
+        try {
+            Object response = pjp.proceed();
 
-        // 응답을 Redis에 저장
-        String json = objectMapper.writeValueAsString(response);
-        idempotencyService.saveResponse(transactionId, json, ttl);
+            resJson = objectMapper.writeValueAsString(response);
+            idempotencyService.saveResponse(transactionId, resJson, ttl);
 
-        return response;
+            return response;
+        } catch (CustomException ex) {
+            ApiResponse errorResponse = ApiResponse.error(ex.getHttpStatus(), ex.getMessage());
+
+            resJson = objectMapper.writeValueAsString(errorResponse);
+            idempotencyService.saveResponse(transactionId, resJson, ttl);
+
+            throw ex;
+
+        } catch (Exception ex) {
+            ApiResponse errorResponse = ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+
+            resJson = objectMapper.writeValueAsString(errorResponse);
+            idempotencyService.saveResponse(transactionId, resJson, ttl);
+
+            throw ex;
+        }
     }
 
     private String parseKey(String keyExpression, MethodSignature signature, Object[] args) {
