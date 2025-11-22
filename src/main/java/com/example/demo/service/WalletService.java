@@ -21,16 +21,16 @@ public class WalletService {
     private final TransactionHistoryRepository transactionHistoryRepository;
 
     @Transactional
-    public void withdraw(Long walletId, WithdrawRequestDto withdrawRequestDto) {
+    public void withdraw(String walletId, WithdrawRequestDto request) {
 
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
         BalanceEntity wallet = balanceRepository.findByWalletIdForUpdate(walletId).orElseThrow(() -> new IllegalArgumentException("wallet not found"));
-        if (wallet.getBalance().compareTo(withdrawRequestDto.getAmount()) < 0) {
+        if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
             throw new IllegalArgumentException("insufficient funds");
         }
 
-        BigDecimal balance = wallet.getBalance().subtract(withdrawRequestDto.getAmount());
+        BigDecimal balance = wallet.getBalance().subtract(request.getAmount());
         wallet.setBalance(balance);
         wallet.setLastUpdateDtime(now);
         balanceRepository.save(wallet);
@@ -38,7 +38,7 @@ public class WalletService {
         TransactionHistoryEntity builder = TransactionHistoryEntity.builder()
                 .walletId(walletId)
                 .balance(balance)
-                .amount(withdrawRequestDto.getAmount())
+                .amount(request.getAmount())
                 .regDtime(now)
                 .build();
         transactionHistoryRepository.save(builder);

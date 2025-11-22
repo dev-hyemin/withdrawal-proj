@@ -1,26 +1,31 @@
 package com.example.demo.domain.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.*;
-import org.springframework.data.annotation.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "balance")
 public class BalanceEntity {
 
     @Id
-    private Long walletId;
-    @Setter
-    private BigDecimal balance;
-    @Setter
-    private LocalDateTime lastUpdateDtime;
+    @Column(name = "wallet_id", length = 36, nullable = false, updatable = false)
+    private String walletId;
 
+    @Setter
+    @Column(nullable = false)
+    private BigDecimal balance;
+
+    @Setter
+    @Column(name = "last_update_dtime")
+    private LocalDateTime lastUpdateDtime;
 }
