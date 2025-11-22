@@ -1,10 +1,13 @@
 package com.example.demo.exception;
 
 import com.example.demo.dto.response.ApiResponse;
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.method.MethodValidationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -17,6 +20,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = IllegalArgumentException.class)
     public ApiResponse handleIllegalArgumentException(IllegalArgumentException e) {
         return ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(value = HandlerMethodValidationException.class)
+    public ApiResponse handleValidationException(HandlerMethodValidationException e) {
+        return ApiResponse.error(HttpStatus.BAD_REQUEST, e.getReason());
     }
 
     @ExceptionHandler(value = NullPointerException.class)
