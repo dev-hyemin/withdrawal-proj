@@ -10,26 +10,21 @@ import org.springframework.http.HttpStatus;
 public class ApiResponse {
 
     private Integer status;
-    private Object data;
+    private String message;
     private String error;
 
     public static ApiResponse success() {
         return ApiResponse.builder()
                 .status(HttpStatus.OK.value())
-                .build();
-    }
-
-    public static ApiResponse success(Object data) {
-        return ApiResponse.builder()
-                .status(HttpStatus.OK.value())
-                .data(data)
+                .message("success")
                 .build();
     }
 
     public static ApiResponse error(HttpStatus status, String message) {
         return ApiResponse.builder()
                 .status(status.value())
-                .error(message)
+                .message(message)
+                .error(status.getReasonPhrase())
                 .build();
     }
 }
