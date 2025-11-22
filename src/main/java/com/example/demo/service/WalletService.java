@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.domain.models.BalanceEntity;
 import com.example.demo.domain.models.TransactionHistoryEntity;
 import com.example.demo.dto.request.WithdrawRequestDto;
+import com.example.demo.exception.CustomException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.BalanceRepository;
 import com.example.demo.repository.TransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,7 @@ public class WalletService {
 
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        BalanceEntity wallet = balanceRepository.findByWalletIdForUpdate(walletId).orElseThrow(() -> new IllegalArgumentException("wallet not found"));
+        BalanceEntity wallet = balanceRepository.findByWalletIdForUpdate(walletId).orElseThrow(() -> new CustomException(ErrorCode.WALLET_NOT_FOUND));
         if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
             throw new IllegalArgumentException("insufficient funds");
         }

@@ -1,5 +1,7 @@
 package com.example.demo.exception;
 
+import com.example.demo.dto.response.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -8,12 +10,22 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<?> handleException(Exception e) {
-        return ResponseEntity.internalServerError().body(e.getMessage());
+    public ApiResponse handleException(Exception e) {
+        return ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(value = IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+    public ApiResponse handleIllegalArgumentException(IllegalArgumentException e) {
+        return ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(value = NullPointerException.class)
+    public ApiResponse handleNullPointerException(NullPointerException e) {
+        return ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(value = CustomException.class)
+    public ApiResponse handleCustomException(CustomException e) {
+        return ApiResponse.error(e.getHttpStatus(), e.getMessage());
     }
 }
