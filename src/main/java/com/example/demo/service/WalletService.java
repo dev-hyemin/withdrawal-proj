@@ -8,7 +8,6 @@ import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.BalanceRepository;
 import com.example.demo.repository.TransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,7 @@ public class WalletService {
     private final TransactionHistoryRepository transactionHistoryRepository;
 
     @Transactional
-    public void withdraw(String walletId, WithdrawRequestDto request) {
+    public BigDecimal withdraw(String walletId, WithdrawRequestDto request) {
 
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
@@ -45,5 +44,7 @@ public class WalletService {
                 .regDtime(now)
                 .build();
         transactionHistoryRepository.save(builder);
+
+        return balance;
     }
 }
