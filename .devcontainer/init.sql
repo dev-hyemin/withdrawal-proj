@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS balance (
 INSERT INTO balance (wallet_id, balance, last_update_dtime)
 VALUES
     ('2a79cd80-c768-11f0-a863-bef5164605b6', 1000000.000000, NOW()),
-    ('5b32769f-c768-11f0-a863-bef5164605b6', 35000.500000, NOW()),
+    ('5b32769f-c768-11f0-a863-bef5164605b6', 35000.000000, NOW()),
     ('60cb980e-c768-11f0-a863-bef5164605b6', 0.000000, NOW());
 
 -- ========================
