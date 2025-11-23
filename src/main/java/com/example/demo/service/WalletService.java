@@ -8,6 +8,7 @@ import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.BalanceRepository;
 import com.example.demo.repository.TransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public class WalletService {
 
         BalanceEntity wallet = balanceRepository.findByWalletIdForUpdate(walletId).orElseThrow(() -> new CustomException(ErrorCode.WALLET_NOT_FOUND));
         if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new IllegalArgumentException("insufficient funds");
+            throw new CustomException(ErrorCode.INSUFFICIENT_FUNDS);
         }
 
         BigDecimal balance = wallet.getBalance().subtract(request.getAmount());
